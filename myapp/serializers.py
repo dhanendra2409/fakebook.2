@@ -8,7 +8,7 @@ class RegistrationsSerializer(serializers.ModelSerializer):
     confirm_pass = serializers.CharField(style={'input_type':'password'},write_only=True)
     class Meta:
         model = User
-        fields = ['fullname','email','gender','dob','phone_no','password','confirm_pass']
+        fields = ['id','fullname','email','gender','dob','phone_no','password','confirm_pass']
         extra_kwargs={
             'password':{'write_only':True}
         }
@@ -33,14 +33,27 @@ class LoginSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
    class Meta:
          model = User
-         fields = ['fullname','email','gender','dob','phone_no']
+         fields = ['id','fullname','email','gender','dob','phone_no']
+
+
+
+class CreatePostSerializer(serializers.ModelSerializer):
+    owner=serializers.SerializerMethodField(read_only=True)
+    # liked_by=ProfileSerializer(many=True)
+    class Meta:
+        model = Posts
+        fields = ['id','title','description','file','created_date','owner','total_likes']
+    
+    def get_owner(self,instance):
+        user = instance.owner
+        return ProfileSerializer(user).data
 
 class PostSerializer(serializers.ModelSerializer):
     owner=serializers.SerializerMethodField(read_only=True)
     liked_by=ProfileSerializer(many=True)
     class Meta:
         model = Posts
-        fields = ['title','description','file','created_date','owner','liked_by','total_likes']
+        fields = ['id','title','description','file','created_date','owner','liked_by','total_likes']
     
     def get_owner(self,instance):
         user = instance.owner
@@ -50,3 +63,9 @@ class LikeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Likes
         fields=['id','user','post']
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source = 'user.fullname')
+    class Meta:
+        model = Comments
+        fields = ('id', 'user', 'post', 'body', 'created')        
