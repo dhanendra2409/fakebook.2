@@ -1,5 +1,5 @@
 """
-URL configuration for fakebook project.
+URL configuration for useraccess project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.2/topics/http/urls/
@@ -15,8 +15,14 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path,include
+from rest_framework.authtoken import views
+from rest_framework_simplejwt import views as api_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('myapp.urls')),
+    path('api/token/', api_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', api_views.TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/verify/', api_views.TokenVerifyView.as_view(), name='token_verify'),
 ]
