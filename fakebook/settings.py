@@ -17,7 +17,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env(DEBUG=bool, ALLOWED_HOSTS=list)
-env_file = BASE_DIR / 'fakebook/env/.env.main'
+env_file = BASE_DIR / 'fakebook/env/.env.dev'
 environ.Env.read_env(env_file=env_file, overwrite=True)
 
 
