@@ -6,6 +6,8 @@ class PostFunction:
     def all_posts():
         queryset = myapp_models.Posts.objects.all()
         return queryset
+    
+    
 class GetObject:
     def get_object(self,pk):
         try:
