@@ -28,7 +28,7 @@ class Posts(models.Model):
     file=models.FileField(upload_to='uploads/')
     created_date= models.DateTimeField(auto_now_add=True)  
     owner= models.ForeignKey(User,on_delete=models.CASCADE)
-    liked_by=models.ManyToManyField(User,related_name='liked_by',null=True,blank=True,default=None)
+    liked_by=models.ManyToManyField(User,related_name='liked_by',default=None)
     total_likes=models.IntegerField(default=0)   
     #comment=models.CharField(max_length=500)
  
