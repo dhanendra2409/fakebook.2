@@ -15,6 +15,7 @@ urlpatterns = [
     path('userpost/',myapp_apis.UserWisePost.as_view(),name='user_post'),
     path('postlike/<int:pk>/',myapp_apis.LikePostView.as_view(),name='post_like'),
     path('unlike/<int:pk>/',myapp_apis.unlikePostView.as_view(),name='post_like'),
+    path('comment/<int:pk>/',myapp_apis.CommentAPIView.as_view(),name='post_comment'),
     
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 

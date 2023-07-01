@@ -51,9 +51,9 @@ class CreatePostView(APIView):
     permission_classes=[IsAuthenticated]
     def post(self, request):
           print(request.data)
-          serializer = PostSerializer(data=request.data)
+          serializer = CreatePostSerializer(data=request.data)
           if serializer.is_valid():
-               serializer.save(liked_by=request.user)
+               serializer.save(owner=request.user)
                return Response({'msg':'post Created'},status=status.HTTP_201_CREATED)
           return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -158,6 +158,40 @@ class unlikePostView(APIView):
         post.save()
         return Response({'msg':'post Unliked'}, status = status.HTTP_200_OK)  
 
+
+class CommentAPIView(APIView):
+    authentication_classes= [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self, pk):
+        try:
+            return Posts.objects.get(pk = pk)
+        except Posts.DoesNotExist:
+            return None
+    
+    def get(self, request, pk, *args, **kwargs):
+        post = self.get_object(pk)
+        if post is None:
+            return Response({'error': 'Post not found'}, status = status.HTTP_404_NOT_FOUND)
+        comments = Comments.objects.filter(post = post)
+        serializer = CommentSerializer(comments, many = True)
+        return Response(serializer.data, status = status.HTTP_200_OK)
+
+    def post(self, request, pk, *args, **kwargs):
+        post = self.get_object(pk)
+        if post is None:
+            return Response({'error': 'Post not found'}, status = status.HTTP_404_NOT_FOUND)
+        data = {
+            'user': request.user,
+            'post': post.id,
+            'body': request.data.get('body')
+        }
+        serializer = CommentSerializer(data = data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            post.save()
+            return Response({'msg':'Comment Posted Successfully'}, status = status.HTTP_201_CREATED)
+        return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
         
 
 

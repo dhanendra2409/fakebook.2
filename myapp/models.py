@@ -30,6 +30,7 @@ class Posts(models.Model):
     owner= models.ForeignKey(User,on_delete=models.CASCADE)
     liked_by=models.ManyToManyField(User,related_name='liked_by',null=True,blank=True,default=None)
     total_likes=models.IntegerField(default=0)   
+    #comment=models.CharField(max_length=500)
  
     def __str__(self):
        return f"({self.id}){self.title}"
@@ -37,3 +38,12 @@ class Posts(models.Model):
 class Likes(models.Model):
     user = models.ForeignKey(User,related_name="likes",on_delete=models.CASCADE,null=True,blank=True)    
     post = models.ForeignKey(Posts,related_name="likes", on_delete=models.CASCADE,null=True,blank=True)  
+
+class Comments(models.Model):
+    user = models.ForeignKey(User, related_name = 'comments', on_delete = models.CASCADE,default=None)
+    post = models.ForeignKey(Posts, related_name = 'comments', on_delete = models.CASCADE,null=True,blank=True)
+    body = models.TextField()
+    created = models.DateTimeField(auto_now_add = True)
+
+    def __str__(self):
+        return f"({self.id}) {self.body}-->{self.post.title}"   
