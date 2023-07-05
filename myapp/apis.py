@@ -124,40 +124,18 @@ class LikePostView(APIView):
         post = self.get_object(pk)
         if post is None:
             return Response({'error': 'Post not found'}, status = status.HTTP_404_NOT_FOUND) 
-        liked_by = post.likes.all().values_list('user', flat = True)
+        liked_by = post.likepost.all().values_list('user', flat = True)
         if request.user.id in liked_by:
-            return Response({'error':'already liked'},status=status.HTTP_400_BAD_REQUEST)
+            post.total_likes -= 1
+            post.liked_by.remove(request.user)
+            post.likepost.filter(user = request.user).delete()
         else:
             post.total_likes += 1
             post.liked_by.add(request.user)
             like = Likes(user = request.user, post = post)
             like.save()
         post.save()
-        return Response({'msg':'post liked'}, status = status.HTTP_200_OK)
-    
-class unlikePostView(APIView):
-    authentication_classes= [JWTAuthentication]
-    permission_classes=[IsAuthenticated]
-    def get_object(self, pk):
-        try:
-            return Posts.objects.get(pk = pk)
-        except Posts.DoesNotExist:
-            return None
-
-    def post(self, request, pk, *args, **kwargs):
-        post = self.get_object(pk)
-        if post is None:
-            return Response({'error': 'Post not found'}, status = status.HTTP_404_NOT_FOUND)
-        liked_by = post.likes.all().values_list('user', flat = True)
-        if request.user.id not in liked_by:
-             return Response({'error':'Already Unliked or Not Liked before'}, status = status.HTTP_400_BAD_REQUEST)   
-        else:     
-            post.total_likes -= 1
-            post.liked_by.remove(request.user)
-            post.likes.filter(user = request.user).delete()    
-        post.save()
-        return Response({'msg':'post Unliked'}, status = status.HTTP_200_OK)  
-
+        return Response({'msg':'Response Accepted'}, status = status.HTTP_200_OK)
 
 class CommentAPIView(APIView):
     authentication_classes= [JWTAuthentication]
@@ -193,6 +171,36 @@ class CommentAPIView(APIView):
             return Response({'msg':'Comment Posted Successfully'}, status = status.HTTP_201_CREATED)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
         
+class EditCommentView(APIView):
+   authentication_classes= [JWTAuthentication]
+   permission_classes=[IsAuthenticated]
+   def get_object(self, pk):
+        try:
+            return Comments.objects.get(id=pk)
+        except Comments.DoesNotExist:
+            raise Http404    
+
+   def patch(self, request, pk, format=None):
+        post = self.get_object(pk)
+        if post is None:
+            return Response({'error':'Comment Not found'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = CommentSerializer(post, data=request.data,partial=True)
+        if serializer.is_valid():
+            if post.user.id == request.user.id: 
+              serializer.save()
+              return Response(serializer.data)
+            return Response({'error':'You are not authorized to edit this post'},status=status.HTTP_401_UNAUTHORIZED)    
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+   
+   def delete(self, request, pk, format=None):
+        post= self.get_object(pk)
+        if post is None:
+            return Response({'error':'Comment Not found'}, status=status.HTTP_404_NOT_FOUND)
+        if post.user.id == request.user.id: 
+            post.delete()
+            return Response({'res':'Post Deleted Successfully'})
+        return Response({'error':'you are not authorized to delete this file'},status=status.HTTP_401_UNAUTHORIZED)
+   
 
 
 
