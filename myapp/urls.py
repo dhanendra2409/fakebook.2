@@ -14,8 +14,8 @@ urlpatterns = [
     path('editpost/<int:pk>/',myapp_apis.EditPostView.as_view(),name='edit_post'),
     path('userpost/',myapp_apis.UserWisePost.as_view(),name='user_post'),
     path('postlike/<int:pk>/',myapp_apis.LikePostView.as_view(),name='post_like'),
-    path('unlike/<int:pk>/',myapp_apis.unlikePostView.as_view(),name='post_like'),
     path('comment/<int:pk>/',myapp_apis.CommentAPIView.as_view(),name='post_comment'),
+    path('editcomment/<int:pk>/',myapp_apis.EditCommentView.as_view(),name='edit_comment'),
     
 ]+ static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
 

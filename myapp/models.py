@@ -20,30 +20,34 @@ class User(AbstractUser):
    objects = CustomUserManager()
 
    def __str__(self):
-       return f"{self.fullname}({self.id})"
+       return self.fullname
    
 class Posts(models.Model):
     title=models.CharField(max_length=200)
     description=models.CharField(max_length=500)
-    file=models.FileField(upload_to='uploads/')
-    created_date= models.DateTimeField(auto_now_add=True)  
+    file=models.FileField(upload_to='uploads/', null=True, blank=True)
+    created_date= models.DateTimeField(auto_now_add=True)
+    updated_date=models.DateTimeField(auto_now=True)  
     owner= models.ForeignKey(User,on_delete=models.CASCADE)
     liked_by=models.ManyToManyField(User,related_name='liked_by',default=None)
     total_likes=models.IntegerField(default=0)   
-    #comment=models.CharField(max_length=500)
+    #comments=models.ForeignKey()
  
     def __str__(self):
-       return f"({self.id}){self.title}"
+       return self.title
     
 class Likes(models.Model):
-    user = models.ForeignKey(User,related_name="likes",on_delete=models.CASCADE,null=True,blank=True)    
-    post = models.ForeignKey(Posts,related_name="likes", on_delete=models.CASCADE,null=True,blank=True)  
+    user = models.ForeignKey(User,related_name="likeuser",on_delete=models.CASCADE,null=True,blank=True)    
+    post = models.ForeignKey(Posts,related_name="likepost", on_delete=models.CASCADE,null=True,blank=True) 
+    created_date = models.DateTimeField(auto_now_add = True,null=True,blank=True)
+    updated_date = models.DateTimeField(auto_now=True)   
 
 class Comments(models.Model):
-    user = models.ForeignKey(User, related_name = 'comments', on_delete = models.CASCADE,default=None)
-    post = models.ForeignKey(Posts, related_name = 'comments', on_delete = models.CASCADE,null=True,blank=True)
+    user = models.ForeignKey(User, related_name = 'commentuser', on_delete = models.CASCADE,null=True,blank=True)
+    post = models.ForeignKey(Posts, related_name = 'commentpost', on_delete = models.CASCADE,null=True,blank=True)
     body = models.TextField()
-    created = models.DateTimeField(auto_now_add = True)
+    created_date = models.DateTimeField(auto_now_add = True)
+    updated_date = models.DateTimeField(auto_now=True)  
 
     def __str__(self):
         return f"({self.id}) {self.body}-->{self.post.title}"   
